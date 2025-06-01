@@ -228,11 +228,11 @@ const LapTimeChart = ({
 
     // Style axes
     xAxis.selectAll("text")
-      .style("fill", "black")
+      .style("fill", "white")
       .style("font-size", "12px");
     
     yAxis.selectAll("text")
-      .style("fill", "black")
+      .style("fill", "white")
       .style("font-size", "12px");
 
     xAxis.selectAll("path, line")
@@ -249,7 +249,7 @@ const LapTimeChart = ({
       .attr("x", 0 - (chartHeight / 2))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
-      .style("fill", "black")
+      .style("fill", "white")
       .style("font-size", "14px")
       .style("font-weight", "600")
       .text("Lap Time");
@@ -258,7 +258,7 @@ const LapTimeChart = ({
       .attr("class", "axis-label")
       .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + margin.bottom - 20})`)
       .style("text-anchor", "middle")
-      .style("fill", "black")
+      .style("fill", "white")
       .style("font-size", "14px")
       .style("font-weight", "600")
       .text("Year");
@@ -269,7 +269,7 @@ const LapTimeChart = ({
       .attr("x", chartWidth / 2)
       .attr("y", -10)
       .attr("text-anchor", "middle")
-      .style("fill", "black")
+      .style("fill", "white")
       .style("font-size", "18px")
       .style("font-weight", "700")
       .text(`${circuitName} - Lap Time Evolution`);
@@ -294,7 +294,7 @@ const LapTimeChart = ({
     legendItems.append("text")
       .attr("x", 20)
       .attr("y", 12)
-      .style("fill", "black")
+      .style("fill", "white")
       .style("font-size", "12px")
       .text(d => d.name);
 

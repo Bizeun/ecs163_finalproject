@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState }  from 'react';
 import LapTimeChart from './LapTimeChart';
 
-// Format milliseconds to MM:SS.mmm
+// Format milliseconds to MM:SS.mmm 
 const formatLapTime = (milliseconds) => {
   const totalSeconds = milliseconds / 1000;
   const minutes = Math.floor(totalSeconds / 60);
@@ -23,7 +23,7 @@ const CircuitInfo = ({ selectedCircuit, lapTimeData }) => {
         borderRadius: '20px',
         margin: '20px 0',
         textAlign: 'center',
-        color: 'black'
+        color: 'white'
       }}>
         <h2 style={{ color: '#4ecdc4', marginBottom: '16px' }}>Select a Circuit</h2>
         <p>Click on any marker on the world map to view circuit details and lap time evolution</p>
@@ -37,7 +37,7 @@ const CircuitInfo = ({ selectedCircuit, lapTimeData }) => {
       borderRadius: '20px',
       padding: '30px',
       margin: '20px 0',
-      color: 'black'
+      color: 'white'
     }}>
       {/* Circuit Info Header */}
       <div style={{ marginBottom: '30px', textAlign: 'center' }}>
@@ -119,21 +119,22 @@ const CircuitInfo = ({ selectedCircuit, lapTimeData }) => {
         </div>
       ) : (
         <div>
-          <LapTimeChart 
-            data={lapTimeData}
-            circuitName={selectedCircuit.displayName}
-            width={900}
-            height={500}
-          />
-          
-          <div style={{ 
-            marginTop: '20px', 
-            fontSize: '14px', 
-            opacity: 0.8,
-            textAlign: 'center'
-          }}>
-            💡 Hover over data points to see detailed lap time information
-          </div>
+              <LapTimeChart 
+                data={lapTimeData}
+                circuitName={selectedCircuit.displayName}
+                width={900}
+                height={500}
+              />
+              
+              <div style={{ 
+                marginTop: '20px', 
+                fontSize: '14px', 
+                opacity: 0.8,
+                textAlign: 'center'
+              }}>
+                💡 Hover over data points to see detailed lap time information.
+                Scroll down to see how this circuit fits into the global F1 performance pattern.
+              </div>
         </div>
       )}
     </div>
