@@ -4,8 +4,9 @@ import { findQualifyingCircuits, getCircuitLapTimeEvolution } from './utils/data
 import WorldMap from './components/WorldMap';
 import CircuitInfo from './components/CircuitInfo';
 import ImmersiveHomepage from './components/DynamicPage';
-import ImprovedEraDominance from './components/StackBarChart';
+import StackBarChart from './components/StackBarChart';
 import GlobalF1Sankey from './components/GlobalSankey';
+import Footer from './components/Footer';
 
 import './App.css';
 
@@ -17,31 +18,24 @@ function App() {
   const [allCircuitData, setAllCircuitData] = useState({});
 
   
-
+  // Main data loading effect - runs once on component mount
   useEffect(() => {
     const loadData = async () => {
       try {
-        console.log('Loading CSV files...');
-        
+        // Load all F1 datasets concurrently for better performance
+        // These CSV files contain 75 years of F1 data (1950-2024)
         const [races, circuits, lapTimes, constructors, constructorResults] = await Promise.all([
-          loadCSV('races.csv'),
-          loadCSV('circuit.csv'),
-          loadCSV('lap_times.csv'),
-          loadCSV('constructors.csv'),
-          loadCSV('constructor_results.csv')
+          loadCSV('races.csv'), // Race information with dates and circuit references
+          loadCSV('circuit.csv'), // Circuit details including coordinates for world map
+          loadCSV('lap_times.csv'), // 550k+ individual lap times - core of our analysis
+          loadCSV('constructors.csv'), // Team/manufacturer information
+          loadCSV('constructor_results.csv') // Team performance data for Sankey diagram
         ]);
-
-        console.log('Data loaded:', {
-          races: races.length,
-          circuits: circuits.length,
-          lapTimes: lapTimes.length,
-          constructors: constructors.length,
-          constructorResults: constructorResults.length 
-        });
         
-        const qualifyingCircuits = findQualifyingCircuits(circuits, races);
-        console.log('Qualifying circuits:', qualifyingCircuits.length);
 
+        // Pre-process lap time evolution for all qualifying circuits
+        // This front-loads the computation to improve interactive performance
+        const qualifyingCircuits = findQualifyingCircuits(circuits, races);
         const allCircuitLapData = {};
         qualifyingCircuits.forEach(circuit => {
           const lapTimeEvolution = getCircuitLapTimeEvolution(
@@ -56,13 +50,8 @@ function App() {
             country: circuit.country,
             lapTimeData: lapTimeEvolution
           };
-          
-          console.log(`${circuit.displayName}: ${lapTimeEvolution.length} years of data`);
         });
-
-        console.log('All circuit data processed:', Object.keys(allCircuitLapData).length);
         setAllCircuitData(allCircuitLapData);
-      
         setData({ 
           races, 
           circuits, 
@@ -82,45 +71,17 @@ function App() {
     loadData();
   }, []);
 
+  // Circuit selection effect - updates when user selects a different circuit
   useEffect(() => {
     if (selectedCircuit && data) {
-      console.log('Processing lap time data for:', selectedCircuit.displayName);
-      setCircuitLapData(null); // 로딩 상태
-      
+      // Process lap time data specifically for the selected circuit
+      // This provides detailed temporal analysis for individual circuit exploration
       try {
-        // 🔥 디버깅: 모든 레이스 연도 확인
-        const allRaceYears = selectedCircuit.races.map(r => r.year).sort((a,b) => a-b);
-        console.log('📅 All race years for', selectedCircuit.displayName + ':', allRaceYears);
-        console.log('📊 Total races:', selectedCircuit.races.length, 'years');
-        
         const lapTimeEvolution = getCircuitLapTimeEvolution(
           selectedCircuit.circuitId, 
           data.races, 
           data.lapTimes
         );
-        
-        // 🔥 디버깅: 랩타임 데이터가 있는 연도들 확인
-        if (lapTimeEvolution.length > 0) {
-          const lapDataYears = lapTimeEvolution.map(d => d.year).sort((a,b) => a-b);
-          console.log('⏱️ Years with lap time data:', lapDataYears);
-          console.log('⏱️ Lap time data count:', lapTimeEvolution.length, 'years');
-          
-          // 누락된 연도들 찾기
-          const missingYears = allRaceYears.filter(year => !lapDataYears.includes(year));
-          console.log('❌ Missing lap time data for years:', missingYears);
-          console.log('❌ Missing years count:', missingYears.length);
-          
-          // 샘플 데이터 확인
-          console.log('🔍 Sample lap time data:', lapTimeEvolution.slice(0, 5));
-          
-          // 가장 빠른/느린 랩타임
-          const fastestMs = Math.min(...lapTimeEvolution.map(d => d.milliseconds));
-          const slowestMs = Math.max(...lapTimeEvolution.map(d => d.milliseconds));
-          console.log('🏆 Fastest lap:', fastestMs + 'ms (' + (fastestMs/1000).toFixed(3) + 's)');
-          console.log('🐌 Slowest lap:', slowestMs + 'ms (' + (slowestMs/1000).toFixed(3) + 's)');
-        }
-        
-        console.log(`Lap time evolution for ${selectedCircuit.displayName}:`, lapTimeEvolution.length, 'data points');
         
         setCircuitLapData(lapTimeEvolution);
       } catch (error) {
@@ -132,11 +93,14 @@ function App() {
     }
   }, [selectedCircuit, data]);
 
+  // Handler for circuit selection from world map
+  // Updates the selected circuit state to trigger detailed analysis
   const handleCircuitSelect = (circuit) => {
     console.log('Selected circuit:', circuit.displayName);
     setSelectedCircuit(circuit);
   };
 
+  // Loading state - shown while processing 550k+ lap time records
   if (loading) {
     return (
       <div style={{ 
@@ -236,19 +200,19 @@ function App() {
             fontSize: '14px'
           }}>
             <span>
-              ✅ <strong>Races:</strong> <span style={{color: '#000', backgroundColor: 'rgba(255,255,255,0.9)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold'}}>{data.races.length.toLocaleString()}</span>
+              <strong>Races:</strong> <span style={{color: '#000', backgroundColor: 'rgba(255,255,255,0.9)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold'}}>{data.races.length.toLocaleString()}</span>
             </span>
             <span>
-              ✅ <strong>Circuits:</strong> <span style={{color: '#000', backgroundColor: 'rgba(255,255,255,0.9)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold'}}>{data.circuits.length}</span>
+              <strong>Circuits:</strong> <span style={{color: '#000', backgroundColor: 'rgba(255,255,255,0.9)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold'}}>{data.circuits.length}</span>
             </span>
             <span>
-              ✅ <strong>Lap Times:</strong> <span style={{color: '#000', backgroundColor: 'rgba(255,255,255,0.9)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold'}}>{data.lapTimes.length.toLocaleString()}</span>
+              <strong>Lap Times:</strong> <span style={{color: '#000', backgroundColor: 'rgba(255,255,255,0.9)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold'}}>{data.lapTimes.length.toLocaleString()}</span>
             </span>
             <span>
-              ✅ <strong>Constructors:</strong> <span style={{color: '#000', backgroundColor: 'rgba(255,255,255,0.9)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold'}}>{data.constructors.length}</span>
+              <strong>Constructors:</strong> <span style={{color: '#000', backgroundColor: 'rgba(255,255,255,0.9)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold'}}>{data.constructors.length}</span>
             </span>
             <span>
-              ✅ <strong>Processed Circuits:</strong> <span style={{color: '#000', backgroundColor: 'rgba(255,255,255,0.9)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold'}}>{Object.keys(allCircuitData).length}</span>
+              <strong>Processed Circuits:</strong> <span style={{color: '#000', backgroundColor: 'rgba(255,255,255,0.9)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold'}}>{Object.keys(allCircuitData).length}</span>
             </span>
           </div>
         </div>
@@ -268,7 +232,7 @@ function App() {
       />
 
 
-      {/* 🔥 Transition Section: Individual → Global */}
+      {/* Transition Section: Individual → Global */}
       <div style={{ 
         textAlign: 'center', 
         padding: '50px 20px',
@@ -283,7 +247,7 @@ function App() {
           marginBottom: '20px',
           color: '#4ecdc4'
         }}>
-          🔄 From Individual to Global Patterns
+          From Individual to Global Patterns
         </h2>
         <p style={{ 
           fontSize: '1.1rem',
@@ -311,21 +275,22 @@ function App() {
             opacity: 0.95,
             marginBottom: '0'
           }}>
-            💡 <strong>The big question:</strong> If you've noticed some interesting patterns in individual circuits, 
-            what happens when we look at <strong>all {Object.keys(allCircuitData).length} circuits together</strong>? 
-            The answer might surprise you...
+            💡 <strong>The big question:</strong> Despite 75 years of technological advancement, 
+            many lap records still belong to the early 2000s V10 era. What happens when we analyze 
+            <strong> all {Object.keys(allCircuitData).length} qualifying circuits together</strong>? 
+            The pattern might surprise you...
+
           </p>
         </div>
       </div>
 
-      {/* 🔥 Era Dominance Chart - 최적 위치! */}
-      <ImprovedEraDominance 
+      {/* Era Dominance Char! */}
+      <StackBarChart
         allCircuitData={allCircuitData}
-        width={1200}
         height={700}
       />
 
-      {/* 🔥 Bridge to Sankey: Pattern Discovery → Cause Analysis */}
+      {/* Bridge to Sankey: Pattern Discovery → Cause Analysis */}
       <div style={{ 
         textAlign: 'center', 
         padding: '50px 20px',
@@ -368,7 +333,7 @@ function App() {
             opacity: 0.95,
             marginBottom: '0'
           }}>
-            🚨 <strong>The paradox deepens:</strong> Modern hybrid cars produce 1000+ HP compared to 
+            <strong>The paradox deepens:</strong> Modern hybrid cars produce 1000+ HP compared to 
             V10 era's ~850 HP, yet they're often slower. The answer lies in understanding 
             the complex web of <strong>manufacturers</strong>, <strong>technology</strong>, 
             and <strong>regulations</strong> that shape F1 performance...
@@ -387,7 +352,7 @@ function App() {
         height={700}
       />
 
-      {/* 🔥 Conclusion Section */}
+      {/* Conclusion Section */}
       <div style={{ 
         textAlign: 'center', 
         padding: '40px 20px',
@@ -402,7 +367,7 @@ function App() {
           marginBottom: '30px',
           color: '#e74c3c'
         }}>
-          🏁 The F1 Paradox Revealed
+          🏁 Key Findings: The F1 Paradox Revealed
         </h2>
         
         <div style={{
@@ -417,9 +382,8 @@ function App() {
             borderRadius: '12px',
             padding: '20px'
           }}>
-            <h3 style={{ color: '#e74c3c', marginBottom: '10px' }}>⚡ More Power</h3>
-            <p>Modern hybrid cars: <strong>1000+ HP</strong><br />
-            V10 era cars: <strong>~850 HP</strong></p>
+            <h3 style={{ color: '#e74c3c', marginBottom: '10px' }}>V10 Era Dominance</h3>
+            <p><strong>Finding:</strong> The V10 era (1995-2005) holds the majority of fastest lap records across qualifying circuits, despite being 20+ years old.</p>
           </div>
           
           <div style={{
@@ -428,8 +392,8 @@ function App() {
             borderRadius: '12px',
             padding: '20px'
           }}>
-            <h3 style={{ color: '#ffc107', marginBottom: '10px' }}>🔒 More Restrictions</h3>
-            <p>Fuel flow limits, weight regulations, aerodynamic restrictions severely limit performance</p>
+            <h3 style={{ color: '#ffc107', marginBottom: '10px' }}>Power vs Performance</h3>
+            <p><strong>Paradox:</strong> Modern hybrid cars (1000+ HP) are often slower than V10 cars (~850 HP) due to regulatory constraints.</p>
           </div>
           
           <div style={{
@@ -438,8 +402,8 @@ function App() {
             borderRadius: '12px',
             padding: '20px'
           }}>
-            <h3 style={{ color: '#2ecc71', marginBottom: '10px' }}>🏆 Slower Times</h3>
-            <p>Result: V10 era still holds majority of lap records across F1 circuits</p>
+            <h3 style={{ color: '#2ecc71', marginBottom: '10px' }}>Cross-Circuit Consistency</h3>
+            <p><strong>Pattern:</strong> The V10 era's speed advantage appears consistently across different circuit types and geographical locations.</p>
           </div>
         </div>
 
@@ -450,38 +414,23 @@ function App() {
           padding: '25px'
         }}>
           <h3 style={{ color: '#3498db', marginBottom: '15px' }}>
-            📊 What The Data Tells Us
+            What This Means for F1's Future
           </h3>
           <p style={{ 
             fontSize: '1.1rem',
             lineHeight: '1.6',
             marginBottom: '0'
           }}>
-            Formula 1's evolution is not just about raw speed—it's about balancing performance, 
-            sustainability, safety, and competition. The "paradox" reveals that technological 
-            progress doesn't always mean faster lap times when regulations prioritize other goals. 
-            <strong>Sometimes, the fastest cars in history were built when rules allowed pure speed.</strong>
+            Our analysis reveals that Formula 1's evolution transcends pure speed. The sport has shifted from 
+            prioritizing maximum velocity to balancing <strong>performance, sustainability, safety, and competition</strong>. 
+            The upcoming 2026 regulations present an opportunity to break this paradox - will new rules finally 
+            enable cars to surpass the legendary V10 era? <strong>Only time will tell if F1 can reclaim its speed crown.</strong>
           </p>
         </div>
       </div>
 
       {/* Footer Section */}
-      <div style={{ 
-        textAlign: 'center', 
-        padding: '40px 20px',
-        background: 'rgba(255, 255, 255, 0.02)',
-        margin: '0 20px 40px 20px',
-        borderRadius: '20px',
-        color: 'white',
-        opacity: 0.8
-      }}>
-        <p style={{ fontSize: '14px', marginBottom: '10px' }}>
-          📊 Data visualization of Formula 1 performance evolution from 1950-2024
-        </p>
-        <p style={{ fontSize: '12px' }}>
-          Team 21: Sukhyun Hwang, Christopher Wong, Chun Yat Chu | May 2025
-        </p>
-      </div>
+      <Footer />
     </ImmersiveHomepage>
   );
 

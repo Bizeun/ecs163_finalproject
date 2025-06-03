@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const ImmersiveHomepage = ({ children }) => {
   const [scrollY, setScrollY] = useState(0);

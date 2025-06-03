@@ -233,7 +233,7 @@ const GlobalF1Sankey = ({
       return; // No data to display
     }
 
-    const margin = { top: 100, right: 50, bottom: 120, left: 50 };
+    const margin = { top: 120, right: 80, bottom: 140, left: 80 };
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;
 
@@ -245,15 +245,22 @@ const GlobalF1Sankey = ({
     const g = svg.append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
+    const stagePositions = [
+      0,                        
+      chartWidth * 0.28,       
+      chartWidth * 0.56,         
+      chartWidth * 0.84       
+    ];
+
     // Layout
-    const stageWidth = chartWidth / 4;
+    const stageWidth = chartWidth * 0.15;
     [0, 1, 2, 3].forEach(stage => {
       const stageNodes = nodes.filter(n => n.stage === stage);
       const nodeHeight = Math.min(40, (chartHeight - 40) / Math.max(stageNodes.length, 1));
       const spacing = Math.max(5, (chartHeight - stageNodes.length * nodeHeight) / (stageNodes.length + 1));
       
       stageNodes.forEach((node, i) => {
-        node.x = stage * stageWidth + stageWidth * 0.05;
+        node.x = stagePositions[stage];
         node.y = spacing + i * (nodeHeight + spacing);
         node.width = stageWidth * 0.9;
         node.height = nodeHeight;
@@ -282,7 +289,7 @@ const GlobalF1Sankey = ({
         if (d.desc.includes('🏆') || d.desc.includes('⚠️')) return '#ff1744';
         return d.source.color || '#666';
       })
-      .attr("stroke-width", d => Math.max(1, d.value / 2))
+      .attr("stroke-width", d => Math.max(1, d.value / 3))
       .attr("fill", "none")
       .attr("opacity", d => d.desc.includes('PARADOX') ? 0.8 : 0.4)
       .style("cursor", "pointer")
@@ -334,16 +341,17 @@ const GlobalF1Sankey = ({
 
     // Stage headers
     const headers = [
-      { x: stageWidth/2, label: "Major Teams", desc: "Based on race participation" },
-      { x: stageWidth * 1.5, label: "Engine Eras", desc: "Technological periods" },
-      { x: stageWidth * 2.5, label: "Power Output", desc: "Horsepower ranges" },
-      { x: stageWidth * 3.5, label: "Performance", desc: "Championship results" }
+      { x: stagePositions[0] + stageWidth/2, label: "Major Teams", desc: "Based on race participation" },
+      { x: stagePositions[1] + stageWidth/2, label: "Engine Eras", desc: "Technological periods" },
+      { x: stagePositions[2] + stageWidth/2, label: "Power Output", desc: "Horsepower ranges" },
+      { x: stagePositions[3] + stageWidth/2, label: "Performance", desc: "Championship results" }
+  
     ];
 
     headers.forEach(header => {
       g.append("text")
         .attr("x", header.x)
-        .attr("y", -60)
+        .attr("y", -30)
         .attr("text-anchor", "middle")
         .attr("font-size", "14px")
         .attr("font-weight", "bold")
@@ -352,7 +360,7 @@ const GlobalF1Sankey = ({
 
       g.append("text")
         .attr("x", header.x)
-        .attr("y", -45)
+        .attr("y", -10)
         .attr("text-anchor", "middle")
         .attr("font-size", "11px")
         .attr("fill", "#7f8c8d")
@@ -362,7 +370,7 @@ const GlobalF1Sankey = ({
     // Title
     svg.append("text")
       .attr("x", width/2)
-      .attr("y", 30)
+      .attr("y", 25)
       .attr("text-anchor", "middle")
       .attr("font-size", "20px")
       .attr("font-weight", "bold")
@@ -371,7 +379,7 @@ const GlobalF1Sankey = ({
 
     svg.append("text")
       .attr("x", width/2)
-      .attr("y", 50)
+      .attr("y", 45)
       .attr("text-anchor", "middle")
       .attr("font-size", "12px")
       .attr("fill", "#7f8c8d")
@@ -385,26 +393,9 @@ const GlobalF1Sankey = ({
       .attr("font-size", "12px")
       .attr("font-weight", "bold")
       .attr("fill", "#ff1744")
-      .text("🚨 THE PARADOX: Despite highest power output, modern F1 is limited by fuel flow, weight, and aerodynamic regulations");
+      .text("🚨 THE PARADOX: Why do 850 HP V10 cars (1995-2005) still hold more lap records than 1000+ HP hybrids?");
 
   }, [races, constructors, constructorResults, width, height]);
-
-  // Early return for no data
-  if (!constructors.length || !races.length) {
-    return (
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: '16px',
-        padding: '40px',
-        textAlign: 'center',
-        color: '#666',
-        margin: '40px 20px'
-      }}>
-        <h3>F1 Performance Analysis</h3>
-        <p>Loading data for global performance analysis...</p>
-      </div>
-    );
-  }
 
   return (
     <div style={{
@@ -412,7 +403,9 @@ const GlobalF1Sankey = ({
       borderRadius: '16px',
       padding: '20px',
       margin: '40px 20px',
-      position: 'relative'
+      position: 'relative',
+      display: 'flex',         
+      justifyContent: 'center' 
     }}>
       <div ref={svgRef}></div>
       

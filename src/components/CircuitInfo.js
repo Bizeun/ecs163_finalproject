@@ -122,7 +122,7 @@ const CircuitInfo = ({ selectedCircuit, lapTimeData }) => {
               <LapTimeChart 
                 data={lapTimeData}
                 circuitName={selectedCircuit.displayName}
-                width={900}
+                width={1200}
                 height={500}
               />
               
@@ -130,7 +130,9 @@ const CircuitInfo = ({ selectedCircuit, lapTimeData }) => {
                 marginTop: '20px', 
                 fontSize: '14px', 
                 opacity: 0.8,
-                textAlign: 'center'
+                textAlign: 'center',
+                display: 'flex',     
+                justifyContent: 'center' 
               }}>
                 💡 Hover over data points to see detailed lap time information.
                 Scroll down to see how this circuit fits into the global F1 performance pattern.

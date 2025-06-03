@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
 // Engine era definitions
@@ -27,7 +27,7 @@ const LapTimeChart = ({
   circuitName, 
   width = 900, 
   height = 500,
-  margin = { top: 40, right: 100, bottom: 80, left: 120 }
+  margin = { top: 40, right: 180, bottom: 80, left: 120 }
 }) => {
   const chartRef = useRef();
 
@@ -79,7 +79,7 @@ const LapTimeChart = ({
         .attr("y", 0)
         .attr("height", chartHeight)
         .attr("fill", era.color)
-        .attr("opacity", 0.1);
+        .attr("opacity", 0.3);
     });
 
     // Grid lines
@@ -277,25 +277,25 @@ const LapTimeChart = ({
     // Era legend
     const legend = g.append("g")
       .attr("class", "era-legend")
-      .attr("transform", `translate(${chartWidth + 20}, 20)`);
+      .attr("transform", `translate(${chartWidth + 30}, 20)`);
 
     const legendItems = legend.selectAll(".legend-item")
       .data(eraBackgrounds)
       .enter().append("g")
       .attr("class", "legend-item")
-      .attr("transform", (d, i) => `translate(0, ${i * 25})`);
+      .attr("transform", (d, i) => `translate(0, ${i * 28})`);
 
     legendItems.append("rect")
-      .attr("width", 15)
-      .attr("height", 15)
+      .attr("width", 18)
+      .attr("height", 18)
       .attr("fill", d => d.color)
       .attr("opacity", 0.8);
 
     legendItems.append("text")
-      .attr("x", 20)
-      .attr("y", 12)
+      .attr("x", 25)
+      .attr("y", 14)
       .style("fill", "white")
-      .style("font-size", "12px")
+      .style("font-size", "13px")
       .text(d => d.name);
 
     // Cleanup function
