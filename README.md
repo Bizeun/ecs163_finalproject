@@ -50,7 +50,7 @@ Download these datasets from [Kaggle F1 Championship](https://www.kaggle.com/dat
 - `constructors.csv`
 - `constructor_results.csv`
 
-> **Note**: Requires Kaggle account. Total download ~120MB.
+> **Note**: Requires Kaggle account. But, basically datasets are included.
 
 ## Execution
 

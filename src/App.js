@@ -4,7 +4,7 @@ import { findQualifyingCircuits, getCircuitLapTimeEvolution } from './utils/data
 import WorldMap from './components/WorldMap';
 import CircuitInfo from './components/CircuitInfo';
 import ImmersiveHomepage from './components/DynamicPage';
-import StackBarChart from './components/StackBarChart';
+import StackBarChart from './components/StackBarChart';
 import GlobalF1Sankey from './components/GlobalSankey';
 import Footer from './components/Footer';
 
