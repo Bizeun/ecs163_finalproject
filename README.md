@@ -26,7 +26,6 @@ The application features multiple coordinated visualizations built with React an
 - Node.js (version 14 or higher)
 
 
-
 ### Setup Instructions
 
 **1. Clone the repository**
